@@ -3,19 +3,19 @@
  * Created by PhpStorm.
  * User: Андрей
  * Date: 29.06.2017
-];
-
-foreach ($car as $key => $arr) {
-    $price[$key]  = $arr['price'];
-
  * Time: 20:12
  */
 $car = [['id'=>1, 'model'=>'Tesla S', 'price'=>100],
        ['id'=>2, 'model'=>'Tesla X', 'price'=>100000],
 
+];
 
-//var_dump($price);
-//array_multisort($price, SORT_DESC,$car);
+foreach ($car as $key => $arr) {
+    $price[$key]  = $arr['price'];
+
+}
+var_dump($price);
+array_multisort($price, SORT_DESC,$car);
 
 ?>
     <table border="1">
