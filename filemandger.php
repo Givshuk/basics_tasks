@@ -1,6 +1,8 @@
 <?php
+//var_dump($_COOKIE[0]);
 define('DS', '/');
 // abs path for site
+//global $get_cook;
 define('ABS_PATH', $_SERVER['DOCUMENT_ROOT']);
 define('BASE_URL', 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
 // Show image here
@@ -33,13 +35,20 @@ if (!empty($files)) natcasesort($files);
 if (!empty($folders)) natcasesort($folders);
 
 if (isset($_POST['upl'])) {
+
+    if (isset($_COOKIE['TestCookie'])){
+
+        $get_cook = unserialize($_COOKIE['TestCookie']);
+
+    }
+
+
+
     $path = ABS_PATH;
     if ($p != '') $path .= DS . $p;
-
     $errors = 0;
     $uploads = 0;
     $total = count($_FILES['upload']['name']);
-
     for ($i = 0; $i < $total; $i++) {
         $tmp_name = $_FILES['upload']['tmp_name'][$i];
         if (empty($_FILES['upload']['error'][$i]) && !empty($tmp_name) && $tmp_name != 'none') {
@@ -60,6 +69,55 @@ if (isset($_POST['upl'])) {
     }
 
 
+}
+// Download
+if (isset($_GET['dl'])) {
+    $dl = $_GET['dl'];
+    $dl = clean_path($dl);
+    $dl = str_replace('/', '', $dl);
+    $path = ABS_PATH;
+
+    if ($p != '') $path .= DS . $p;
+    if ($dl != '' && is_file($path . DS . $dl)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($path . DS . $dl) . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Connection: Keep-Alive');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($path . DS . $dl));
+
+
+             if(isset($_COOKIE['TestCookie'])) {
+
+                //$get_cook = ['1'=>'1','2'=>'2'];
+            //   $get_cook = unserialize($_COOKIE['TestCookie']);
+                 //array_unshift($get_cook,$dl);
+                  //serialize($get_cook);
+                // setcookie ('TestCookie', $get_cook);
+
+                 $cook_val = array('cook_one' => 'one', 'cook_two' => 'two', 'cook_three' => 'three');
+
+                 setcookie('TestCookie', serialize($cook_val));
+
+                  $get_cook = unserialize($_COOKIE['TestCookie']);
+                  print_r($get_cook);
+             }
+             else
+             {   // serialize($dl);
+                 $get_cook =$dl;
+                 setcookie('TestCookie',$get_cook);
+
+             }
+        readfile($path . DS . $dl);
+        exit;
+    }
+    else {
+
+        redirect(BASE_URL . '?p=' . urlencode($p));
+    }
 }
 
 ### upload form
@@ -137,7 +195,7 @@ if (isset($_GET['showtxt'])) {
     </div>
     <?php
 
-    exit;
+   exit;
 }
 
 
@@ -156,7 +214,7 @@ show_navigation_path($p); // current path
                 <th style="width: 60%">Имя</th>
                 <th style="width: 11%">Размер</th>
                 <th style="width: 14%">Изменен</th>
-
+                <th style="width: 14%">Скачать</th>
             </tr>
             <?php
 
@@ -167,6 +225,7 @@ show_navigation_path($p); // current path
                     <td></td>
                     <td colspan="4">
                         <a href="?p=<?php echo urlencode($parent) ?>"><img src="?img=arrow_up" alt=""> ..</a>
+
                     </td>
                 </tr>
                 <?php
@@ -183,8 +242,12 @@ show_navigation_path($p); // current path
                     </td>
                     <td>Папка</td>
                     <td><?php echo $modif ?></td>
+                    <td><a>---</a></td>
+
 
                 </tr>
+
+
                 <?php
 
             }
@@ -203,7 +266,8 @@ show_navigation_path($p); // current path
                         <?php if (!empty($filelink)) echo '</a>'; ?>
                     </td>
                     <td><span title="<?php echo filesize($path . DS . $f) ?> байт"><?php echo $filesize ?></span></td>
-                    <td><?php echo $modif ?></td>
+                                       <td><?php echo $modif ?></td>
+                    <td> <a title="Скачать" href="?p=<?php echo urlencode($p) ?>&amp;dl=<?php echo urlencode($f) ?>"><img src="?img=download" alt=""></a></td>
 
                 </tr>
                 <?php
@@ -221,6 +285,10 @@ show_navigation_path($p); // current path
 
             ?>
         </table>
+
+        <p> Последний файл <?echo $get_cook?></p>
+
+
 
     </form>
 
