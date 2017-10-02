@@ -3,7 +3,7 @@
         <div class="container">
             <div class="row">
                 <p class="pull-left">Copyright © 2017</p>
-                <p class="pull-right">Мой первый mvc сайт</p>
+                <p class="pull-right">Мое МВЦ</p>
             </div>
         </div>
     </div>
