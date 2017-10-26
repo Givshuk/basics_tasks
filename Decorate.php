@@ -1,5 +1,4 @@
 <?php
-
 class Config
 {
     public $CoffeePrice;
@@ -11,8 +10,7 @@ class Config
      * @param int $CoffeePrice
      * @param int $MilkPrice
      */
-
-    public static function initial($country)
+    public function initial($country)
     {
         return new $country;
     }
@@ -22,14 +20,15 @@ class Coffee
 {
     public $totalPrice;
     public $components = [];
-    public $coffee;
+    public $country;
 
     /**
      * Coffee constructor.
-     * @param $country*/
-    public function __construct($coffee)
+     * @param $country
+     */
+    public function __construct($country)
     {
-        $this->coffee = $coffee;
+        $this->country = $country;
     }
     /**
      * @return array
@@ -38,13 +37,11 @@ class Coffee
     {
         $receipt = '';
         $config = Config::initial($this->country);
-//        print_r($config);
         foreach ($this->components as $component){
-
             $receipt .= key($component)."........".current($component)." ". $config->Currency . PHP_EOL;
         }
         $receipt .= 'Total: ...... '.$this->totalPrice .' ' . $config->Currency;
-        return array  ($receipt);
+        return $receipt;
     }
 }
 
@@ -55,7 +52,6 @@ abstract class BaseCoffeeDecorator
     public function __construct(Coffee $coffee)
     {
         $config = Config::initial($coffee->country);
-        print_r($config);
         $priceName = $this->name."Price";
         $this->price = $config->$priceName;
         $coffee->components[] = [$this->name => $this->price];
@@ -74,7 +70,7 @@ class MilkDecorator extends BaseCoffeeDecorator
 }
 
 
-class Americano extends Coffee
+class Americano
 {
 
     public static function recipe($coffee)
@@ -86,7 +82,7 @@ class Americano extends Coffee
     }
 }
 
-class Cappucino extends Coffee
+class Cappucino
 {
 
     public static function recipe($coffee)
@@ -101,6 +97,7 @@ class Cappucino extends Coffee
 class CoffeMachine
 {
     public $country;
+    public $coffee;
     /**
      * CoffeMachine constructor.
      * @param $country
@@ -110,14 +107,11 @@ class CoffeMachine
         $this->country = $country;
     }
 
-
-    public function makeCoffee($coffee)
+    public function makeCoffee($type)
     {
-        $cup = new Coffee($coffee);
-
-        $result = Americano::recipe($cup); //заглушка строки выше
-        print_r ($result);
-        return $result->getReceipt($this->country);
+        $coffee = new Coffee($this->country);
+        $thisCoffee = $type::recipe($coffee);
+        echo $thisCoffee->getReceipt();
     }
 }
 
@@ -135,6 +129,5 @@ class Spain extends Config
     public $Currency = 'EUR';
 }
 
-$CoffeeMachine = new CoffeMachine('Ukraine');
-
-$coffee = $CoffeeMachine->makeCoffee('americano');
+$coffeeMachine = new CoffeMachine('Ukraine');
+$coffeeMachine->makeCoffee('Americano');
